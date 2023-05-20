@@ -1,7 +1,7 @@
 import boto3
 
 
-class AwsSecretManager:
+class AwsSecretManagerManager:
 
     def __init__(self, client):
         self.client = client
