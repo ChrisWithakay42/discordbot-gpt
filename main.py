@@ -1,10 +1,12 @@
+import openai
 from environs import Env
 import discord
 
 env = Env()
 env.read_env()
 
-TOKEN = env.str('DISCORD_TOKEN')
+DC_TOKEN = env.str('DISCORD_TOKEN')
+openai.api_key = env.str('OPEN_API_KEY')
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -22,8 +24,17 @@ async def on_message(message):
     if message.author == client.user:
         return
 
-    if message.content.startswith('@Tyrion Lannister'):
-        await message.channel.send('Hello!')
+    if message.content.startswith(client.user.mention):
+        user_message = message.content.replace(client.user.mention, '')
+        response = openai.Completion.create(
+            engine='text-davinci-003',
+            prompt=user_message.strip(),
+            max_tokens=50,
+            n=1,
+            stop=None,
+            temperature=0.2
+        )
+        await message.channel.send(response.choices[0].text.strip())
 
 
-client.run(TOKEN)
+client.run(DC_TOKEN)
