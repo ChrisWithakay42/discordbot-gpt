@@ -26,15 +26,23 @@ async def on_message(message):
 
     if message.content.startswith(client.user.mention):
         user_message = message.content.replace(client.user.mention, '')
-        response = openai.Completion.create(
-            engine='text-davinci-003',
-            prompt=user_message.strip(),
-            max_tokens=50,
-            n=1,
-            stop=None,
-            temperature=0.2
+        messages = [{"role": "user", "content": user_message}]
+        response = openai.ChatCompletion.create(
+            model='gpt-3.5-turbo',
+            messages=messages,
+            temperature=0
         )
-        await message.channel.send(response.choices[0].text.strip())
+        await message.channel.send(response.choices[0].message['content'])
+
+
+def get_completion(prompt, model="gpt-3.5-turbo"):
+    messages = [{"role": "user", "content": prompt}]
+    response = openai.ChatCompletion.create(
+        model=model,
+        messages=messages,
+        temperature=0,  # this is the degree of randomness of the model's output
+    )
+    return response.choices[0].message["content"]
 
 
 client.run(DC_TOKEN)
